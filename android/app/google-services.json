@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "41263393040",
+    "project_id": "attea-88b9a",
+    "storage_bucket": "attea-88b9a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:41263393040:android:cbcef749f7b820a926dd95",
+        "android_client_info": {
+          "package_name": "com.example.baking_club_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDM8fwLznPHey4bqNid8OSPzSJppxYlXas"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

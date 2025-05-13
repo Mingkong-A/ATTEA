@@ -12,8 +12,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _adminPwController = TextEditingController();
   bool _saveEmail = false;
   bool _autoLogin = false;
+  bool _isAdminLogin = false; //운영진 로그인
   String? _errorMessage;
 
   Future<void> _login() async {
@@ -21,9 +23,20 @@ class _LoginScreenState extends State<LoginScreen> {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
 
+      // 운영진 비밀번호 검증
+      if (_isAdminLogin) {
+        if (_adminPwController.text.trim() != 'admin1234') {
+          setState(() {
+            _errorMessage = '운영진 비밀번호가 틀렸습니다.';
+          });
+          return;
+        }
+      }
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('saveEmail', _saveEmail);
       await prefs.setBool('autoLogin', _autoLogin);
+      await prefs.setBool('isAdmin', _isAdminLogin);
       if (_saveEmail) {
         await prefs.setString('savedEmail', email);
       } else {
@@ -91,7 +104,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       fit: BoxFit.cover,
                     ),
                   ),
-
               const SizedBox(height: 16),
               const Text(
                 'ATTEA',
@@ -149,6 +161,35 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Text('자동 로그인'),
                 ],
               ),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _isAdminLogin,
+                    onChanged: (value) {
+                      setState(() {
+                        _isAdminLogin = value ?? false;
+                      });
+                    },
+                  ),
+                  const Text('운영진으로 로그인'),
+                ],
+              ),
+              if (_isAdminLogin)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: TextField(
+                    controller: _adminPwController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: '운영진 비밀번호',
+                      prefixIcon: Icon(Icons.lock_outline),
+                      border: OutlineInputBorder(),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.brown, width: 2),
+                      ),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 8),
 
               ElevatedButton(

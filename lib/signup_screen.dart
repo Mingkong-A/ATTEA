@@ -20,12 +20,12 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Future<void> _signup() async {
     final name = _nameController.text.trim();
-    final personalId = _idController.text.trim();
+    final id = _idController.text.trim();
     final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-    final confirmPassword = _confirmPasswordController.text.trim();
+    final pw = _passwordController.text.trim();
+    final pwCheck = _confirmPasswordController.text.trim();
 
-    if (password != confirmPassword) {
+    if (pw != pwCheck) {
       setState(() {
         _errorMessage = '비밀번호가 일치하지 않습니다.';
       });
@@ -38,7 +38,7 @@ class _SignupScreenState extends State<SignupScreen> {
           .doc(name)
           .get();
 
-      if (!doc.exists || doc['id'] != personalId) {
+      if (!doc.exists || doc['id'] != id) {
         setState(() {
           _errorMessage = '동아리원 정보가 없거나 식별자가 틀렸습니다.';
         });
@@ -46,7 +46,7 @@ class _SignupScreenState extends State<SignupScreen> {
       }
 
       final userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
+          .createUserWithEmailAndPassword(email: email, password: pw);
 
       await FirebaseFirestore.instance
           .collection('users')
@@ -58,7 +58,7 @@ class _SignupScreenState extends State<SignupScreen> {
       });
 
       if (!mounted) return;
-      Navigator.pop(context); // 로그인 화면으로 이동
+      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = e.message ?? '회원가입 실패';
@@ -66,40 +66,85 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    bool obscure = false,
+    IconData? icon,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: TextField(
+        controller: controller,
+        obscureText: obscure,
+        decoration: InputDecoration(
+          prefixIcon: icon != null ? Icon(icon) : null,
+          labelText: label,
+          border: OutlineInputBorder(),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.brown, width: 2),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('회원가입')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      backgroundColor: const Color(0xFFFFF8E1),
+      appBar: AppBar(
+        title: const Text('회원가입'),
+        backgroundColor: Colors.brown,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(
+        ClipOval(
+        child: Image.asset(
+        'assets/images/ATTEA.png',
+          width: 100,
+          height: 100,
+          fit: BoxFit.cover,
+        ),
+      ),
+            const SizedBox(height: 20),
+            _buildTextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: '이름'),
+              label: '이름',
+              icon: Icons.person,
             ),
-            TextField(
+            _buildTextField(
               controller: _idController,
-              decoration: const InputDecoration(labelText: '개인 식별자'),
+              label: '개인 식별자',
+              icon: Icons.badge,
             ),
-            TextField(
+            _buildTextField(
               controller: _emailController,
-              decoration: const InputDecoration(labelText: '이메일'),
-              keyboardType: TextInputType.emailAddress,
+              label: '이메일',
+              icon: Icons.email,
             ),
-            TextField(
+            _buildTextField(
               controller: _passwordController,
-              decoration: const InputDecoration(labelText: '비밀번호'),
-              obscureText: true,
+              label: '비밀번호',
+              icon: Icons.lock,
+              obscure: true,
             ),
-            TextField(
+            _buildTextField(
               controller: _confirmPasswordController,
-              decoration: const InputDecoration(labelText: '비밀번호 확인'),
-              obscureText: true,
+              label: '비밀번호 확인',
+              icon: Icons.lock_outline,
+              obscure: true,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             ElevatedButton(
               onPressed: _signup,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.brown,
+                minimumSize: const Size.fromHeight(48),
+                foregroundColor: Colors.white,
+              ),
               child: const Text('가입하기'),
             ),
             if (_errorMessage.isNotEmpty)

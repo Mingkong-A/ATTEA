@@ -42,6 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
   }
+
   @override
   void initState() {
     super.initState();
@@ -75,60 +76,107 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('로그인')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: '이메일'),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: '비밀번호'),
-              obscureText: true,
-            ),
-            Row(
-              children: [
-                Checkbox(
-                  value: _saveEmail,
-                  onChanged: (value) {
-                    setState(() {
-                      _saveEmail = value ?? false;
-                    });
-                  },
-                ),
-                const Text('아이디 저장'),
-                const SizedBox(width: 20),
-                Checkbox(
-                  value: _autoLogin,
-                  onChanged: (value) {
-                    setState(() {
-                      _autoLogin = value ?? false;
-                    });
-                  },
-                ),
-                const Text('자동 로그인'),
-              ],
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _login,
-              child: const Text('로그인'),
-            ),
-            if (_errorMessage?.isNotEmpty ?? false)
-              Text(
-                _errorMessage!,
-                style: const TextStyle(color: Colors.red),
+      backgroundColor: const Color(0xFFFFF8E1), // 크림색 배경
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+                  ClipOval(
+                    child: Image.asset(
+                      'assets/images/ATTEA.png',
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+
+              const SizedBox(height: 16),
+              const Text(
+                'ATTEA',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/signup');
-              },
-              child: const Text('회원가입'),
-            ),
-          ],
+              const SizedBox(height: 32),
+
+              TextField(
+                controller: _emailController,
+                decoration: const InputDecoration(
+                  labelText: '이메일',
+                  prefixIcon: Icon(Icons.email),
+                  border: OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.brown, width: 2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: '비밀번호',
+                  prefixIcon: Icon(Icons.lock),
+                  border: OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.brown, width: 2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              Row(
+                children: [
+                  Checkbox(
+                    value: _saveEmail,
+                    onChanged: (value) {
+                      setState(() {
+                        _saveEmail = value ?? false;
+                      });
+                    },
+                  ),
+                  const Text('아이디 저장'),
+                  const SizedBox(width: 20),
+                  Checkbox(
+                    value: _autoLogin,
+                    onChanged: (value) {
+                      setState(() {
+                        _autoLogin = value ?? false;
+                      });
+                    },
+                  ),
+                  const Text('자동 로그인'),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              ElevatedButton(
+                onPressed: _login,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.brown,
+                  minimumSize: const Size.fromHeight(48),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('로그인', style: TextStyle(fontSize: 18)),
+              ),
+              if (_errorMessage?.isNotEmpty ?? false)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              TextButton(
+                onPressed: () => Navigator.pushNamed(context, '/signup'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.black, // 텍스트 색상
+                ),
+                child: const Text('회원가입'),
+              ),
+            ],
+          ),
         ),
       ),
     );

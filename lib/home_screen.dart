@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'schedule_tab.dart';
-import 'recipe_tab.dart';
+import 'home_tab/schedule_tab.dart';
+import 'home_tab/recipe_tab.dart';
+import 'home_tab/chat_tab.dart';
+import 'home_tab/settings_tab.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,8 +17,8 @@ class _HomeScreenState extends State<HomeScreen> {
   static const List<Widget> _pages = <Widget>[
     ScheduleTab(),
     RecipeTab(),
-    Center(child: Text('💬 채팅')),
-    Center(child: Text('⚙️ 사용자 설정')),
+    ChatTab(),
+    SettingsTab(),
   ];
 
   void _onItemTapped(int index) {

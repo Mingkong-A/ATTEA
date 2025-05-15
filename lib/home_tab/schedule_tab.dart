@@ -271,6 +271,7 @@ class _ScheduleTabState extends State<ScheduleTab> {
             lastDay: DateTime.utc(2030, 12, 31),
             focusedDay: _focusedDay,
             locale: 'ko_KR',
+            daysOfWeekHeight: 24,
             selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
             eventLoader: _getEventsForDay,
             onDaySelected: (selectedDay, focusedDay) {
@@ -391,7 +392,7 @@ class _ScheduleTabState extends State<ScheduleTab> {
                                 if (snapshot.connectionState == ConnectionState.done &&
                                     snapshot.data == true) {
                                   return IconButton(
-                                    icon: const Icon(Icons.delete, color: Colors.black45),
+                                    icon: const Icon(Icons.delete, color: Colors.black87),
                                     onPressed: () => _confirmAndDeleteEvent(docId),
                                   );
                                 }

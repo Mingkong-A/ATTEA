@@ -1,5 +1,8 @@
+// global_chat_page.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'chat_bubble.dart';
 
 class GlobalChatPage extends StatefulWidget {
   const GlobalChatPage({super.key});
@@ -10,14 +13,17 @@ class GlobalChatPage extends StatefulWidget {
 
 class _GlobalChatPageState extends State<GlobalChatPage> {
   final TextEditingController _controller = TextEditingController();
+  final _auth = FirebaseAuth.instance;
 
   Future<void> _sendMessage() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
+    final uid = _auth.currentUser?.uid;
     await FirebaseFirestore.instance.collection('global_messages').add({
       'text': text,
       'timestamp': Timestamp.now(),
+      'senderId': uid,
     });
 
     _controller.clear();
@@ -25,6 +31,8 @@ class _GlobalChatPageState extends State<GlobalChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    final uid = _auth.currentUser?.uid;
+
     return Column(
       children: [
         Expanded(
@@ -45,8 +53,15 @@ class _GlobalChatPageState extends State<GlobalChatPage> {
                 itemCount: docs.length,
                 itemBuilder: (context, index) {
                   final data = docs[index].data() as Map<String, dynamic>;
-                  return ListTile(
-                    title: Text(data['text'] ?? ''),
+                  final message = data['text'] ?? '';
+                  final timestamp = (data['timestamp'] as Timestamp?)?.toDate();
+                  final senderId = data['senderId'] ?? '';
+                  final isMe = senderId == uid;
+
+                  return ChatBubble(
+                    message: message,
+                    timestamp: timestamp,
+                    isMe: isMe,
                   );
                 },
               );

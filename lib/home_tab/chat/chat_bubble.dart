@@ -30,28 +30,30 @@ class ChatBubble extends StatelessWidget {
             ),
           ),
         Container(
-          padding:
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          margin:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
             color: Colors.lightBlue[100],
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.blue.shade300),
           ),
-          child: Text(
-            message,
-            style:
-            const TextStyle(fontSize: 16, color: Colors.black87),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.7,
+            ),
+            child: Text(
+              message,
+              style: const TextStyle(fontSize: 16, color: Colors.black87),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
           ),
         ),
       ]
           : [
         Container(
-          padding:
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          margin:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
             color: Colors.grey[200],
             borderRadius: BorderRadius.circular(12),
@@ -59,8 +61,9 @@ class ChatBubble extends StatelessWidget {
           ),
           child: Text(
             message,
-            style:
-            const TextStyle(fontSize: 16, color: Colors.black87),
+            style: const TextStyle(fontSize: 16, color: Colors.black87),
+            softWrap: true,
+            overflow: TextOverflow.visible,
           ),
         ),
         if (timestamp != null)

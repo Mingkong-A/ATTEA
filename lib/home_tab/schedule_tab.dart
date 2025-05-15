@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class ScheduleTab extends StatefulWidget {
   const ScheduleTab({super.key});
@@ -17,12 +18,15 @@ class _ScheduleTabState extends State<ScheduleTab> {
   DateTime? _selectedDay;
   final _auth = FirebaseAuth.instance;
   Set<String> _participatingScheduleIds = {};
+  Map<DateTime, List<String>> _events = {};
 
   @override
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
+    initializeDateFormatting('ko_KR', null);
     _loadParticipations();
+    _loadEventDays();
   }
 
   Future<void> _loadParticipations() async {
@@ -42,6 +46,27 @@ class _ScheduleTabState extends State<ScheduleTab> {
     setState(() {
       _participatingScheduleIds = participatingIds;
     });
+  }
+
+  Future<void> _loadEventDays() async {
+    final snapshot = await FirebaseFirestore.instance.collection('schedules').get();
+    final events = <DateTime, List<String>>{};
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      final dateStr = data['date'] as String;
+      final event = data['event'] as String;
+      final date = DateTime.parse(dateStr);
+      events.update(date, (list) => list..add(event), ifAbsent: () => [event]);
+    }
+
+    setState(() {
+      _events = events;
+    });
+  }
+
+  List<String> _getEventsForDay(DateTime day) {
+    return _events[DateTime.utc(day.year, day.month, day.day)] ?? [];
   }
 
   Future<void> _showAddEventDialog(DateTime date) async {
@@ -84,6 +109,7 @@ class _ScheduleTabState extends State<ScheduleTab> {
                     'isRegular': isRegular,
                     'createdAt': Timestamp.now(),
                   });
+                  await _loadEventDays();
                 }
                 if (context.mounted) Navigator.pop(context);
               },
@@ -94,6 +120,36 @@ class _ScheduleTabState extends State<ScheduleTab> {
       ),
     );
   }
+
+  Future<void> _confirmAndDeleteEvent(String docId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('삭제 확인', style: TextStyle(color: Colors.black)),
+        content: const Text('일정을 삭제하시겠습니까?', style: TextStyle(color: Colors.black)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('취소', style: TextStyle(color: Colors.black)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.grey[300],
+              foregroundColor: Colors.black,
+            ),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await FirebaseFirestore.instance.collection('schedules').doc(docId).delete();
+      await _loadEventDays();
+    }
+  }
+
 
   Stream<QuerySnapshot> _eventStream(DateTime date) {
     final dayString = date.toIso8601String().split("T")[0];
@@ -192,6 +248,7 @@ class _ScheduleTabState extends State<ScheduleTab> {
   String _formatKoreanMonth(DateTime date, dynamic locale) {
     return '${date.year}년 ${date.month}월';
   }
+
   String _formatKoreanWeekday(DateTime date, dynamic locale) {
     const days = ['월', '화', '수', '목', '금', '토', '일'];
     return days[date.weekday - 1];
@@ -199,9 +256,9 @@ class _ScheduleTabState extends State<ScheduleTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFFFF8E1),
-      child: Column(
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFF8E1),
+      body: Column(
         children: [
           const SizedBox(height: 8),
           const Text(
@@ -215,16 +272,31 @@ class _ScheduleTabState extends State<ScheduleTab> {
             focusedDay: _focusedDay,
             locale: 'ko_KR',
             selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            onDaySelected: (selectedDay, focusedDay) async {
+            eventLoader: _getEventsForDay,
+            onDaySelected: (selectedDay, focusedDay) {
               setState(() {
                 _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
               });
-
-              if (await _isAdmin()) {
-                _showAddEventDialog(selectedDay);
-              }
             },
+            calendarBuilders: CalendarBuilders(
+              markerBuilder: (context, date, events) {
+                if (events.isNotEmpty) {
+                  return Positioned(
+                    bottom: 1,
+                    child: Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.brown,
+                      ),
+                    ),
+                  );
+                }
+                return null;
+              },
+            ),
             headerStyle: HeaderStyle(
               formatButtonVisible: false,
               titleCentered: true,
@@ -313,6 +385,19 @@ class _ScheduleTabState extends State<ScheduleTab> {
                               icon: const Icon(Icons.info_outline),
                               onPressed: () => _showDetailOverlay(data['event'], data['date'], docId),
                             ),
+                            FutureBuilder<bool>(
+                              future: _isAdmin(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.done &&
+                                    snapshot.data == true) {
+                                  return IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.black45),
+                                    onPressed: () => _confirmAndDeleteEvent(docId),
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -323,6 +408,23 @@ class _ScheduleTabState extends State<ScheduleTab> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FutureBuilder<bool>(
+        future: _isAdmin(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done && snapshot.data == true) {
+            return FloatingActionButton(
+              onPressed: () {
+                if (_selectedDay != null) {
+                  _showAddEventDialog(_selectedDay!);
+                }
+              },
+              child: const Icon(Icons.add),
+              backgroundColor: Colors.brown,
+            );
+          }
+          return const SizedBox.shrink();
+        },
       ),
     );
   }

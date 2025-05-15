@@ -30,15 +30,38 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFFF8E1),
       appBar: AppBar(
-        title: const Text('Baking Club'),
+        backgroundColor: const Color(0xFFFFF8E1),
+        title: const Text(
+          'ATTEA',
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w900,
+            fontSize: 22,
+            letterSpacing: 1.5,                // 자간 추가 (기본 0)
+          ),
+        ),
+
+        centerTitle: true,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.brown),
       ),
-      body: _pages[_selectedIndex],
+      body: Column(
+        children: [
+          const Divider(height: 1, thickness: 0.5, color: Colors.brown), // ← 경계선
+          Expanded(child: _pages[_selectedIndex]),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: const Color(0xFFFFF3E0),
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.brown[800],
-        unselectedItemColor: Colors.brown[300],
+        unselectedItemColor: Colors.brown[200],
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
         onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
@@ -57,9 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
             label: '설정',
           ),
         ],
-        type: BottomNavigationBarType.fixed,
       ),
     );
   }
 }
-

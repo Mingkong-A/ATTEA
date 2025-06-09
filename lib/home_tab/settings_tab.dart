@@ -7,27 +7,70 @@ class SettingsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
+    final email = user?.email ?? "알 수 없음";
 
     return Scaffold(
-      body: Padding(
+      appBar: AppBar(
+        title: const Text('설정'),
+        centerTitle: true,
+      ),
+      body: ListView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('설정', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
-            Text('로그인 계정: ${user?.email ?? "알 수 없음"}'),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushReplacementNamed(context, '/');
-              },
-              icon: const Icon(Icons.logout),
-              label: const Text('로그아웃'),
+        children: [
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  const CircleAvatar(
+                    radius: 28,
+                    child: Icon(Icons.person, size: 32),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('로그인 계정', style: TextStyle(color: Colors.grey)),
+                        const SizedBox(height: 4),
+                        Text(email, style: const TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 32),
+          const Text('계정', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Divider(height: 24),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('로그아웃'),
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacementNamed(context, '/');
+            },
+          ),
+          const SizedBox(height: 32),
+          const Text('앱 정보', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Divider(height: 24),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('버전 정보'),
+            subtitle: const Text('1.0.0'),
+            onTap: () {
+              showAboutDialog(
+                context: context,
+                applicationName: '나의 앱',
+                applicationVersion: '1.0.0',
+                applicationLegalese: '© 2025 Jeon jin',
+              );
+            },
+          ),
+        ],
       ),
     );
   }

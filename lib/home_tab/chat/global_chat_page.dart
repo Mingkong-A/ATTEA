@@ -36,7 +36,7 @@ class _GlobalChatPageState extends State<GlobalChatPage> {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 600),
-        curve: Curves.easeOutCubic, // 💡 여기서 스크롤 부드러움 조정
+        curve: Curves.easeOutCubic, //
       );
     }
   }
@@ -61,7 +61,6 @@ class _GlobalChatPageState extends State<GlobalChatPage> {
               final docs = snapshot.data!.docs;
               final reversedDocs = docs.reversed.toList(); // 최신순 → 오래된 순
 
-              /// 🔥 핵심: Stream 데이터가 업데이트되었을 때 스크롤을 아래로 이동
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 _scrollToBottom();
               });

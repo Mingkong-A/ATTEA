@@ -22,7 +22,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Baking Club',
-      theme: ThemeData(primarySwatch: Colors.brown),
+      theme: ThemeData(
+        primarySwatch: Colors.brown,
+        splashFactory: NoSplash.splashFactory,            // ← ripple 효과 제거
+        splashColor: Colors.transparent,                  // ← splash 색 제거
+        highlightColor: Colors.transparent,               // ← 클릭 시 하이라이트 제거
+      ),
       initialRoute: '/',
       routes: {
         '/': (context) => const LoginScreen(), // 로그인 화면

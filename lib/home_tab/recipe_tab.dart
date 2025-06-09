@@ -1,32 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'reicipe/recipe_Detail_Screen.dart';
+import 'reicipe/Add_Recipe_Screen.dart';
 class RecipeTab extends StatelessWidget {
   const RecipeTab({super.key});
 
   void _addRecipe(BuildContext context) {
-    final controller = TextEditingController();
+    final nameController = TextEditingController();
+    final descController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('새 레시피 추가'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(labelText: '레시피 이름'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: '레시피 이름'),
+            ),
+            TextField(
+              controller: descController,
+              decoration: const InputDecoration(labelText: '설명'),
+              maxLines: 3,
+            ),
+          ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('취소')),
           ElevatedButton(
             onPressed: () async {
-              final name = controller.text.trim();
+              final name = nameController.text.trim();
+              final desc = descController.text.trim();
               if (name.isNotEmpty) {
-                await FirebaseFirestore.instance
-                    .collection('recipes')
-                    .add({'name': name, 'createdAt': Timestamp.now()});
+                await FirebaseFirestore.instance.collection('recipes').add({
+                  'name': name,
+                  'description': desc,
+                  'createdAt': Timestamp.now(),
+                });
               }
               Navigator.pop(context);
             },
@@ -62,6 +74,18 @@ class RecipeTab extends StatelessWidget {
               return ListTile(
                 leading: const Icon(Icons.cake),
                 title: Text(data['name'] ?? '이름 없음'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RecipeDetailScreen(
+                        name: data['name'] ?? '이름 없음',
+                        description: data['description'] ?? '설명 없음',
+                        recipeRef: docs[index].reference, // ← 필수 파라미터 전달
+                      ),
+                    ),
+                  );
+                },
               );
             },
             separatorBuilder: (context, index) => const Divider(),
@@ -69,7 +93,12 @@ class RecipeTab extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _addRecipe(context),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddRecipeScreen()),
+          );
+        },
         child: const Icon(Icons.add),
         tooltip: '레시피 추가',
       ),

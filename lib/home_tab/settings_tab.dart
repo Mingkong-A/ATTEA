@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'popup/common_dialog.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
@@ -49,10 +50,19 @@ class SettingsTab extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('로그아웃'),
-            onTap: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pushReplacementNamed(context, '/');
-            },
+              onTap: () async {
+                final shouldLogout = await showConfirmDialog(
+                  context: context,
+                  title: '로그아웃',
+                  content: '정말 로그아웃 하시겠습니까?',
+                  confirmText: '로그아웃',
+                );
+
+                if (shouldLogout == true) {
+                  await FirebaseAuth.instance.signOut();
+                  Navigator.pushReplacementNamed(context, '/');
+                }
+              }
           ),
           const SizedBox(height: 32),
           const Text('앱 정보', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),

@@ -72,7 +72,17 @@ class RecipeTab extends StatelessWidget {
             itemBuilder: (context, index) {
               final data = docs[index].data() as Map<String, dynamic>;
               return ListTile(
-                leading: const Icon(Icons.cake),
+                leading: data['imageUrl'] != null
+                    ? ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    data['imageUrl'],
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
+                )
+                    : const Icon(Icons.cake, size: 40),
                 title: Text(data['name'] ?? '이름 없음'),
                 onTap: () {
                   Navigator.push(
@@ -81,7 +91,7 @@ class RecipeTab extends StatelessWidget {
                       builder: (context) => RecipeDetailScreen(
                         name: data['name'] ?? '이름 없음',
                         description: data['description'] ?? '설명 없음',
-                        recipeRef: docs[index].reference, // ← 필수 파라미터 전달
+                        recipeRef: docs[index].reference,
                       ),
                     ),
                   );

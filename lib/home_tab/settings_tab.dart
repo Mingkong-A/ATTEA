@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'popup/common_dialog.dart';
+import 'setting/Account_Info_screen.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
@@ -47,6 +48,13 @@ class SettingsTab extends StatelessWidget {
           const SizedBox(height: 32),
           const Text('계정', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const Divider(height: 24),
+          ListTile(
+            leading: const Icon(Icons.manage_accounts),
+            title: const Text('계정 정보'),
+            onTap: () {
+              Navigator.pushNamed(context, '/account-info');
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('로그아웃'),

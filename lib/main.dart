@@ -5,7 +5,7 @@ import 'firebase_options.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
 import 'home_screen.dart';
-
+import 'home_tab/setting/Account_Info_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const LoginScreen(), // 로그인 화면
         '/signup': (context) => const SignupScreen(), // 회원가입 화면
          '/home': (context) => const HomeScreen(),// 홈 화면
+        '/account-info': (context) => const AccountInfoScreen(), //계정 정보 화면
       },
     );
   }

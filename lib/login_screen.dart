@@ -50,8 +50,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
       Navigator.pushReplacementNamed(context, '/home');
     } on FirebaseAuthException catch (e) {
+      print('로그인 실패 코드: ${e.code}'); // 추가
       setState(() {
-        _errorMessage = e.message ?? '로그인 실패';
+        if (e.code == 'wrong-password' || e.code == 'invalid-credential' || e.code == 'user-not-found') {
+          _errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다.';
+        } else {
+          _errorMessage = e.message ?? '로그인 실패';
+        }
       });
     }
   }

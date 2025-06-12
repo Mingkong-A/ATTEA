@@ -10,10 +10,12 @@ class AddRecipeScreen extends StatefulWidget {
 
 class _AddRecipeScreenState extends State<AddRecipeScreen> {
   final _titleController = TextEditingController();
+  final _subtitleController = TextEditingController();
   final _contentController = TextEditingController();
 
   Future<void> _saveRecipe() async {
     final title = _titleController.text.trim();
+    final subtitle = _subtitleController.text.trim();
     final content = _contentController.text.trim();
 
     if (title.isEmpty) {
@@ -25,6 +27,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
 
     await FirebaseFirestore.instance.collection('recipes').add({
       'name': title,
+      'subtitle': subtitle,
       'description': content,
       'createdAt': Timestamp.now(),
     });
@@ -63,6 +66,19 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
               ),
               decoration: const InputDecoration(
                 hintText: '제목을 입력하세요',
+                border: InputBorder.none,
+              ),
+            ),
+            const Divider(thickness: 1.2),
+            TextField(
+              controller: _subtitleController,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey,
+              ),
+              decoration: const InputDecoration(
+                hintText: '몇 차 베이킹 인지 써주세용',
                 border: InputBorder.none,
               ),
             ),

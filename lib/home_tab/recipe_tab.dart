@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'reicipe/recipe_Detail_Screen.dart';
 import 'reicipe/Add_Recipe_Screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 class RecipeTab extends StatelessWidget {
   const RecipeTab({super.key});
 
@@ -49,13 +52,29 @@ class RecipeTab extends StatelessWidget {
     );
   }
 
+  Future<bool> _isAdmin() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isAdmin') ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //backgroundColor: Colors.brown[50],
+      appBar: AppBar(
+        title: const Text('레시피 목록'),
+        centerTitle: true, // 가운데 정렬
+        backgroundColor: Colors.brown[100],
+        titleTextStyle: const TextStyle( // 글씨 키우기
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('recipes')
-            //.orderBy('createdAt', descending: true)
+            .orderBy('createdAt', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -67,52 +86,90 @@ class RecipeTab extends StatelessWidget {
 
           final docs = snapshot.data!.docs;
 
-          return ListView.separated(
-            itemCount: docs.length,
-            itemBuilder: (context, index) {
-              final data = docs[index].data() as Map<String, dynamic>;
-              return ListTile(
-                leading: data['imageUrl'] != null
-                    ? ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    data['imageUrl'],
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
+          return Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: ListView.separated(
+              itemCount: docs.length,
+              itemBuilder: (context, index) {
+                final data = docs[index].data() as Map<String, dynamic>;
+                return Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                )
-                    : const Icon(Icons.cake, size: 40),
-                title: Text(data['name'] ?? '이름 없음'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RecipeDetailScreen(
-                        name: data['name'] ?? '이름 없음',
-                        description: data['description'] ?? '설명 없음',
-                        recipeRef: docs[index].reference,
+                  elevation: 3,
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    leading: data['imageUrl'] != null
+                        ? ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        data['imageUrl'],
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                        : Icon(Icons.cake, size: 50, color: Colors.brown[300]),
+                    title: Text(
+                      data['name'] ?? '이름 없음',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
                     ),
-                  );
-                },
-              );
-            },
-            separatorBuilder: (context, index) => const Divider(),
+                    subtitle: Text(
+                      data['subtitle'] ?? '설명 없음',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RecipeDetailScreen(
+                            name: data['name'] ?? '이름 없음',
+                            description: data['description'] ?? '설명 없음',
+                            subtitle: data['subtitle'] ?? '',
+                            recipeRef: docs[index].reference,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
+            ),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddRecipeScreen()),
-          );
+      floatingActionButton: FutureBuilder<bool>(
+        future: _isAdmin(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done && snapshot.data == true) {
+            return FloatingActionButton.extended(
+              backgroundColor: Colors.brown[100],
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AddRecipeScreen()),
+                );
+              },
+              icon: const Icon(Icons.add, color: Colors.black),
+              label: const Text(
+                '레시피 추가',
+                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
         },
-        child: const Icon(Icons.add),
-        tooltip: '레시피 추가',
       ),
     );
   }
 }
-

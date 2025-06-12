@@ -1,16 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'common_dialog.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final String name;
   final String description;
+  final String? subtitle;
   final DocumentReference recipeRef;
 
   const RecipeDetailScreen({
     super.key,
     required this.name,
     required this.description,
+    this.subtitle,
     required this.recipeRef,
   });
 
@@ -36,22 +39,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   }
 
   Future<void> _deleteRecipe() async {
-    final confirm = await showDialog<bool>(
+    final confirm = await showConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('레시피 삭제'),
-        content: const Text('정말 이 레시피를 삭제하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+      title: '레시피 삭제',
+      content: '정말 이 레시피를 삭제하시겠습니까?',
+      confirmText: '삭제',
     );
 
     if (confirm == true) {
@@ -94,6 +86,17 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 letterSpacing: 0.5,
               ),
             ),
+            if (widget.subtitle != null && widget.subtitle!.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(
+                widget.subtitle!,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
             const SizedBox(height: 20),
             Text(
               widget.description,

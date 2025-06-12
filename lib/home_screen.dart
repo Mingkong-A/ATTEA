@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_tab/schedule_tab.dart';
 import 'home_tab/recipe_tab.dart';
+import 'home_tab/convenience_tab.dart';  // ← 추가
 import 'home_tab/chat_tab.dart';
 import 'home_tab/settings_tab.dart';
 
@@ -17,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const List<Widget> _pages = <Widget>[
     ScheduleTab(),
     RecipeTab(),
+    ConvenienceTab(),  // ← 추가
     ChatTab(),
     SettingsTab(),
   ];
@@ -39,17 +41,16 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.black87,
             fontWeight: FontWeight.w900,
             fontSize: 22,
-            letterSpacing: 1.5,                // 자간 추가 (기본 0)
+            letterSpacing: 1.5,
           ),
         ),
-
         centerTitle: true,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.brown),
       ),
       body: Column(
         children: [
-          const Divider(height: 1, thickness: 0.5, color: Colors.brown), // ← 경계선
+          const Divider(height: 1, thickness: 0.5, color: Colors.brown),
           Expanded(child: _pages[_selectedIndex]),
         ],
       ),
@@ -70,6 +71,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.restaurant_menu),
             label: '레시피',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.widgets_outlined),
+            label: '편의기능', // ← 추가된 탭
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
